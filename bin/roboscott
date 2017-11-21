@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+
+require 'getoptlong'
+require 'yaml'
+
+begin
+  require 'roboscott'
+rescue LoadError
+  $: << File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
+  require 'roboscott'
+end
+
+opts = GetoptLong.new(
+  [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
+  [ '--unredacted', '-u', GetoptLong::NO_ARGUMENT ]
+)
+
+config = {}
+
+opts.each do |opt, arg|
+  case opt
+    when '--help'
+      puts <<-EOF
+roboscott [OPTION] ... <DIR|Files>
+
+-h, --help:
+   show help
+
+-u, --unredacted:
+   log all found suspicious passwords to the console
+
+DIR|Files: The directory or files to parse
+      EOF
+    when '--unredacted'
+      puts 'Running in unredacted mode'
+      config[:unredacted] = true
+  end
+end
+
+if ARGV.length < 1
+  puts "Missing dir argument. Running on current directory (try --help if this isn't intendted)"
+  dir = ['.']
+else
+  dir = ARGV
+end
+
+failed = 0
+
+# Okay, enough setting up, let's check some files
+ARGV.each do|file|
+  lint = RoboScott.new(file, config)
+  failed = failed + lint.do_lint
+end
+
+exit failed
