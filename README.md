@@ -17,8 +17,6 @@ Secret and key management can be challenging if it's not already setup. Many leg
 Install
 -------
 
-# TODO NOT GEMIFIED YET
-
 ```shell
 gem install roboscott
 ```
